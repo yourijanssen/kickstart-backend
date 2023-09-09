@@ -1,3 +1,5 @@
+import { Hero } from "../model/hero";
+
 export class HeroService {
   private heroes: Hero[] = [
     { id: 12, name: "Dr. Nice" },
@@ -19,9 +21,4 @@ export class HeroService {
   public getHeroes(): Hero[] {
     return this.heroes;
   }
-}
-
-export interface Hero {
-  id: number;
-  name: string;
 }
