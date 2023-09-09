@@ -1,6 +1,7 @@
 import express from "express";
 import config from "dotenv";
 import { HeroController } from "./controller/hero";
+import { HeroService } from "./service/hero";
 
 const app = express();
 
@@ -34,7 +35,7 @@ app.get("/", (req: express.Request, res: express.Response) => {
   res.status(200).json({ Reply: "Hello world!" });
 });
 
-const heroController: HeroController = new HeroController();
+const heroController = new HeroController();
 
 app.get("/hero/all", (req: express.Request, res: express.Response) => {
   heroController.getHeroes(req, res);
