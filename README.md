@@ -15,14 +15,14 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
-git remote add origin https://gitlab.fdmci.hva.nl/ad-software-development-2324/fdmci-ict-ad-sd101/sem2/youri/kickstart_backend.git
+git remote add origin https://gitlab.fdmci.hva.nl/ad-software-development-2324/fdmci-ict-ad-sd101/sem2/kickstart_backend.git
 git branch -M main
 git push -uf origin main
 ```
 
 ## Integrate with your tools
 
-- [ ] [Set up project integrations](https://gitlab.fdmci.hva.nl/ad-software-development-2324/fdmci-ict-ad-sd101/sem2/youri/kickstart_backend/-/settings/integrations)
+- [ ] [Set up project integrations](https://gitlab.fdmci.hva.nl/ad-software-development-2324/fdmci-ict-ad-sd101/sem2/kickstart_backend/-/settings/integrations)
 
 ## Collaborate with your team
 

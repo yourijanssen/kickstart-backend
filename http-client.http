@@ -1,0 +1,34 @@
+#GET http://localhost:3002 HTTP/1.1
+
+#
+
+#GET http://localhost:3002/hero?name=Dr.+Nice HTTP/1.1
+
+#GET http://localhost:3002/hero?name=Mag HTTP/1.1
+
+#
+
+#GET http://localhost:3002/hero/all HTTP/1.1
+
+#
+
+#GET http://localhost:3002/hero/1 HTTP/1.1
+
+#
+
+# PUT http://localhost:3002/hero/name/1 HTTP/1.1
+# content-type: application/json
+# 
+# {
+#     "id": 1,
+#     "name": "Pietje"
+# } 
+
+#POST http://localhost:3002/hero/ HTTP/1.1
+#content-type: application/json
+#
+#{
+#    "_name": "Pietjess"
+#} 
+
+DELETE http://localhost:3002/hero/11 HTTP/1.1
