@@ -1,49 +1,65 @@
-import express from "express";
-import config from "dotenv";
-import { HeroController } from "./controller/hero";
-import { HeroService } from "./service/hero";
+import express from 'express';
+import config from 'dotenv';
+import { HeroRoutes } from './util/routes/heroRoutes';
 
-const app = express();
+/**
+ * The main server class responsible for setting up and starting the Express server.
+ */
+class Server {
+  private app: express.Application;
+  private port: number;
+  private heroRoutes: HeroRoutes;
 
-app.use(function (
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, OPTIONS, PUT, PATCH, DELETE"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "X-Requested-With,content-type"
-  );
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  next();
-});
+  /**
+   * Create an instance of the Server class.
+   */
+  constructor() {
+    this.app = express();
+    this.port = parseInt(process.env.PORT || '3002', 10);
+    this.heroRoutes = new HeroRoutes();
 
-// parse requests of content-type - application/json
-app.use(express.json());
+    this.configureMiddleware();
+    this.configureRoutes();
+  }
 
-// parse requests of content-type - application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: true }));
+  /**
+   * Configure middleware for the Express application.
+   * Middleware includes JSON and URL-encoded request body parsers.
+   */
+  private configureMiddleware() {
+    this.app.use(express.json());
+    this.app.use(express.urlencoded({ extended: true }));
+    // Set specific CORS headers
+    this.app.use((req, res, next) => {
+      res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+      res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      next();
+    });
+  }
 
-// simple route
-app.get("/", (req: express.Request, res: express.Response) => {
-  console.log(req.query.id);
-  res.status(200).json({ Reply: "Hello world!" });
-});
+  /**
+   * Configure routes for the Express application.
+   * Mounts the HeroRoutes under the '/hero' path.
+   */
+  private configureRoutes() {
+    this.app.use('/hero', this.heroRoutes.getRouter());
+  }
 
-const heroController = new HeroController();
+  /**
+   * Start the Express server on the specified port.
+   */
+  public start() {
+    this.app.listen(this.port, () => {
+      console.log(`Server is running on localhost:${this.port}`);
+    });
+  }
+}
 
-app.get("/hero/all", (req: express.Request, res: express.Response) => {
-  heroController.getHeroes(req, res);
-});
+// Initialize environment variables from a .env file.
+config.config();
 
-config.config({ path: "./config.env" });
-// set port, listen for requests
-const PORT = process.env.PORT || 3002;
-app.listen(PORT, () => {
-  console.log(`Server is running on localhost:${PORT}`);
-});
+// Create an instance of the Server class and start the server.
+const server = new Server();
+server.start();
