@@ -1,7 +1,7 @@
 import { OkPacket, Pool, ResultSetHeader, RowDataPacket } from 'mysql2';
-import { Hero } from '../model/hero';
+import { Hero } from '../model/hero-business';
 import { HeroDatabase } from './hero-interface';
-import { RelationalDatabase } from '../util/database-config';
+import { RelationalDatabase } from '../util/mysql/database-config';
 
 /**
  * Repository class for managing Hero data in the database.
@@ -53,29 +53,6 @@ export class HeroMysqlDatabase implements HeroDatabase {
       return new Hero(row.id, row.name);
     } else {
       return null; // Hero with the given ID not found
-    }
-  }
-  /**
-   * Retrieves a hero by their name from the database.
-   * @param name - The name of the hero to retrieve.
-   * @returns A Promise that resolves to a Hero object if found, or null if not found.
-   * @throws Error if there are issues with the database query.
-   */
-  public async getHeroByName(name: string): Promise<Hero | null> {
-    const pool: Pool | null = RelationalDatabase.getPool();
-    let result: RowDataPacket[] | null = null;
-
-    if (pool != null) {
-      [result] = await pool
-        .promise()
-        .execute<RowDataPacket[]>('SELECT * FROM `hero` WHERE `name` = ?', [name]);
-    }
-
-    if (result != null && result.length > 0) {
-      const row = result[0];
-      return new Hero(row.id, row.name);
-    } else {
-      return null; // Hero with the given name not found
     }
   }
 

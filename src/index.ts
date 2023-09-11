@@ -2,34 +2,51 @@ import express from 'express';
 import config from 'dotenv';
 import { HeroRoutes } from './util/routes/heroRoutes';
 
-/**
- * The main server class responsible for setting up and starting the Express server.
+/**  add a database choosing option HERE, based on the db_type instead of waiting for instanciation at the service level.
+ * Make it look something like this:
+ *
+          if (process.env!.DB_SELECT == 'SEQUELIZE') {
+        runSequelize();
+        function runSequelize(): void {
+    let sequelDatabase: SequelizeInit = SequelizeInit.getInstance();
+    sequelDatabase.initTables();
+    sequelDatabase.initRelations();
+    let seeder: SequelizeSeeder = new SequelizeSeeder();
+    sequelize
+        //.sync({ force: true })
+        .sync()
+        .catch((error: any) => {
+            console.error(`Error occured: ${error}`);
+        });
+}
+    } else {
+        runMysql();
+        let createInstance = MysqlConfig.getInstance();
  */
 class Server {
   private app: express.Application;
   private port: number;
   private heroRoutes: HeroRoutes;
 
-  /**
-   * Create an instance of the Server class.
-   */
   constructor() {
     this.app = express();
-    this.port = parseInt(process.env.PORT || '3002', 10);
+    this.port = this.parsePort(process.env.PORT);
     this.heroRoutes = new HeroRoutes();
-
     this.configureMiddleware();
     this.configureRoutes();
   }
 
-  /**
-   * Configure middleware for the Express application.
-   * Middleware includes JSON and URL-encoded request body parsers.
-   */
+  private parsePort(portString: string | undefined): number {
+    // Parse the port from the environment variable or use a default value
+    return parseInt(portString || '3002', 10);
+  }
+
   private configureMiddleware() {
+    // Middleware for parsing JSON and URL-encoded request bodies
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
-    // Set specific CORS headers
+
+    // CORS headers configuration
     this.app.use((req, res, next) => {
       res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
@@ -39,17 +56,11 @@ class Server {
     });
   }
 
-  /**
-   * Configure routes for the Express application.
-   * Mounts the HeroRoutes under the '/hero' path.
-   */
   private configureRoutes() {
+    // Mount HeroRoutes under the '/hero' path
     this.app.use('/hero', this.heroRoutes.getRouter());
   }
 
-  /**
-   * Start the Express server on the specified port.
-   */
   public start() {
     this.app.listen(this.port, () => {
       console.log(`Server is running on localhost:${this.port}`);

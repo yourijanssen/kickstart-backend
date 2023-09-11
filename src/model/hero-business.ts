@@ -13,7 +13,7 @@ export class Hero {
       throw new Error("Invalid 'id' value. The value must not be negative.");
     }
 
-    if (name.length < 1) {
+    if (name.length <= 1) {
       throw new Error("Invalid 'name' value. The value must have a length of 1 or more.");
     }
   }

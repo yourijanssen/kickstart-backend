@@ -1,4 +1,4 @@
-import { Hero } from '../model/hero';
+import { Hero } from '../model/hero-business';
 
 /**
  * Represents a database interface for managing Hero data.
@@ -6,7 +6,6 @@ import { Hero } from '../model/hero';
 export interface HeroDatabase {
   getHeroes(): Promise<Hero[]>;
   getHeroById(id: number): Promise<Hero | null>;
-  getHeroByName(name: string): Promise<Hero | null>;
   getHeroesByName(name: string): Promise<Hero[]>;
   setHeroNameById(hero: Hero): void;
   createHero(name: string): Promise<number | undefined>;

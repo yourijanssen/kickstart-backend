@@ -1,6 +1,6 @@
-import { HeroMysqlDatabase } from '../data/hero';
+import { HeroMysqlDatabase } from '../data/hero-sql';
 import { HeroDatabase } from '../data/hero-interface';
-import { Hero } from '../model/hero';
+import { Hero } from '../model/hero-business';
 
 /**
  * Service class for managing hero-related operations.
@@ -10,6 +10,7 @@ export class HeroService {
    * Creates an instance of the HeroService.
    * @param {HeroDatabase} database - The hero database to use.
    */
+  // public constructor(private database: HeroDatabase) {}
   public constructor(private database: HeroDatabase = new HeroMysqlDatabase()) {}
 
   /**
@@ -28,16 +29,6 @@ export class HeroService {
    */
   public async getHeroById(id: number): Promise<Hero | null> {
     const hero: Hero | null = await this.database.getHeroById(id);
-    return hero;
-  }
-
-  /**
-   * Get a hero by their name.
-   * @param {string} name - The name of the hero to retrieve.
-   * @returns {Promise<Hero | null>} A promise that resolves to a Hero object if found, or null if not found.
-   */
-  public async getHeroByName(name: string): Promise<Hero | null> {
-    const hero: Hero | null = await this.database.getHeroByName(name);
     return hero;
   }
 

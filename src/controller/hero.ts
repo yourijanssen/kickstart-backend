@@ -1,6 +1,6 @@
 import * as express from 'express';
 import { HeroService } from '../service/hero';
-import { Hero } from '../model/hero';
+import { Hero } from '../model/hero-business';
 
 /**
  * Controller for managing hero-related operations.
