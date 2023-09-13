@@ -6,9 +6,8 @@ import { HeroController } from '../../controller/hero';
  */
 export class HeroRoutes {
   private readonly router: Router = express.Router();
-  private readonly heroController = new HeroController();
 
-  constructor() {
+  constructor(private heroController: HeroController) {
     this.setupRoutes();
   }
 
@@ -18,7 +17,6 @@ export class HeroRoutes {
   private setupRoutes(): void {
     this.router.get('/all', this.getAllHeroes);
     this.router.get('/:id', this.getHeroById);
-    this.router.get('/name/:name', this.getHeroByName);
     this.router.get('/names/:name', this.getHeroesByName);
     this.router.put('/:id', this.updateHeroNameById);
     this.router.post('/', this.createHero);
@@ -37,13 +35,6 @@ export class HeroRoutes {
    */
   private getHeroById = async (req: Request, res: Response): Promise<void> => {
     this.heroController.getHeroById(req, res);
-  };
-
-  /**
-   * Retrieve a hero by name.
-   */
-  private getHeroByName = async (req: Request, res: Response): Promise<void> => {
-    this.heroController.getHeroByName(req, res);
   };
 
   /**
@@ -69,7 +60,6 @@ export class HeroRoutes {
 
   /**
    * Delete a hero by ID.
-   * @param {number} id - The ID of the hero
    */
   private deleteHero = async (req: Request, res: Response): Promise<void> => {
     this.heroController.deleteHero(req, res);
@@ -79,7 +69,7 @@ export class HeroRoutes {
    * Get the router containing hero-related routes.
    * @returns {Router} The router with hero routes.
    */
-  public getRouter(): Router {
+  public getHeroRouter(): Router {
     return this.router;
   }
 }

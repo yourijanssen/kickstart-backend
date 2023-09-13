@@ -7,7 +7,6 @@
     "build": "npx tsc --watch",
     "start": "node build/index.js",
     "debug": "ts-node-dev --files --transpile-only --respawn --inspect=4321 --project tsconfig.json src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "npx eslint \"src/**/*.{js,jsx,ts,tsx,html,css,scss}\" \"test/*.test.ts\" --quiet --fix",
     "format": "npx prettier \"src/**/*.{js,jsx,ts,tsx,html,css,scss}\" --write",
     "check": "npm run lint & npm run format"

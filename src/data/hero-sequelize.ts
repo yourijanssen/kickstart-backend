@@ -1,8 +1,11 @@
 import { Op } from 'sequelize';
 import { Hero } from '../model/hero-business';
-import { HeroModel } from '../util/sequelize-typescript/models';
+import { HeroModel } from '../util/models';
 import { HeroDatabase } from './hero-interface';
 
+/**
+ * A class that interacts with the database to perform CRUD operations on heroes using Sequelize.
+ */
 export class HeroSequelizeDatabase implements HeroDatabase {
   /**
    * Retrieves a list of heroes from the database.

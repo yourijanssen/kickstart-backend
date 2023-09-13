@@ -1,48 +1,53 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import express from 'express';
 import config from 'dotenv';
-import { HeroRoutes } from './util/routes/heroRoutes';
+import { RouteHandler } from './util/routes/routeHandler';
+import { DatabaseConfig } from './util/database-config';
+import { HeroModel } from './util/models';
 
-/**  add a database choosing option HERE, based on the db_type instead of waiting for instanciation at the service level.
- * Make it look something like this:
- *
-          if (process.env!.DB_SELECT == 'SEQUELIZE') {
-        runSequelize();
-        function runSequelize(): void {
-    let sequelDatabase: SequelizeInit = SequelizeInit.getInstance();
-    sequelDatabase.initTables();
-    sequelDatabase.initRelations();
-    let seeder: SequelizeSeeder = new SequelizeSeeder();
-    sequelize
-        //.sync({ force: true })
-        .sync()
-        .catch((error: any) => {
-            console.error(`Error occured: ${error}`);
-        });
-}
-    } else {
-        runMysql();
-        let createInstance = MysqlConfig.getInstance();
+// Initialize environment variables from a .env file.
+config.config();
+
+/**
+ * The main server class responsible for setting up the Express server.
  */
 class Server {
   private app: express.Application;
   private port: number;
-  private heroRoutes: HeroRoutes;
+  private database: DatabaseConfig;
 
-  constructor() {
+  /**
+   * Creates a new Server instance.
+   * @param {RouteHandler} routeHandler - The route handler for setting up routes in the server.
+   */
+  constructor(public routeHandler: RouteHandler) {
+    // Initialize the database configuration based on the DB_TYPE environment variable.
+    this.database = new DatabaseConfig(process.env.DB_TYPE!);
+
+    // Initialize Express application.
     this.app = express();
+
+    // Parse the port from the environment variable or use a default value.
     this.port = this.parsePort(process.env.PORT);
-    this.heroRoutes = new HeroRoutes();
+
+    // Configure middleware and routes.
     this.configureMiddleware();
     this.configureRoutes();
   }
 
+  /**
+   * Parses the port from an environment variable or uses a default value.
+   * @param {string | undefined} portString - The port value from the environment variable.
+   * @returns {number} - The parsed port number.
+   */
   private parsePort(portString: string | undefined): number {
-    // Parse the port from the environment variable or use a default value
     return parseInt(portString || '3002', 10);
   }
 
+  /**
+   * Configures middleware for the Express app.
+   */
   private configureMiddleware() {
-    // Middleware for parsing JSON and URL-encoded request bodies
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
 
@@ -56,21 +61,53 @@ class Server {
     });
   }
 
+  /**
+   * Configures routes for the Express app.
+   */
   private configureRoutes() {
-    // Mount HeroRoutes under the '/hero' path
-    this.app.use('/hero', this.heroRoutes.getRouter());
+    this.app.use(this.routeHandler.assignRouteHandler());
   }
 
-  public start() {
+  /**
+   * Configures Sequelize and starts the server using Sequelize as the database.
+   */
+  public sequelizeConfig(): void {
+    const sequelize = this.database.sequelize;
+
+    // Add models and sync the database.
+    sequelize!.addModels([HeroModel]);
+    sequelize!
+      .sync() // { force: true }
+      .then(() => {
+        this.app.listen(this.port, () => {
+          console.log(`Server is running on localhost:${this.port} using Sequelize`);
+        });
+      })
+      .catch(error => {
+        console.error('Error syncing models:', error);
+      });
+  }
+
+  /**
+   * Starts the server using MySQL as the database.
+   */
+  public sqlConfig(): void {
     this.app.listen(this.port, () => {
-      console.log(`Server is running on localhost:${this.port}`);
+      console.log(`Server is running on localhost:${this.port} using MySQL`);
     });
   }
 }
 
-// Initialize environment variables from a .env file.
-config.config();
+/**
+ * Starts the server based on the DB_TYPE environment variable.
+ */
+function startServer(): void {
+  const applicationRoutes = new RouteHandler();
+  const server = new Server(applicationRoutes);
 
-// Create an instance of the Server class and start the server.
-const server = new Server();
-server.start();
+  // Choose the database configuration based on the DB_TYPE environment variable.
+  process.env.DB_TYPE === 'sql' ? server.sqlConfig() : server.sequelizeConfig();
+}
+
+// Start the server.
+startServer();

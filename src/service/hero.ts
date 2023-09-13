@@ -1,4 +1,3 @@
-import { HeroMysqlDatabase } from '../data/hero-sql';
 import { HeroDatabase } from '../data/hero-interface';
 import { Hero } from '../model/hero-business';
 
@@ -8,17 +7,16 @@ import { Hero } from '../model/hero-business';
 export class HeroService {
   /**
    * Creates an instance of the HeroService.
-   * @param {HeroDatabase} database - The hero database to use.
+   * @param {HeroDatabase} heroDatabase - The database implementation to use.
    */
-  // public constructor(private database: HeroDatabase) {}
-  public constructor(private database: HeroDatabase = new HeroMysqlDatabase()) {}
+  public constructor(private heroDatabase: HeroDatabase) {}
 
   /**
    * Get a list of all heroes.
    * @returns {Promise<Hero[]>} A promise that resolves to an array of Hero objects.
    */
   public async getHeroes(): Promise<Hero[]> {
-    const heroesFromDB: Hero[] = await this.database.getHeroes();
+    const heroesFromDB: Hero[] = await this.heroDatabase.getHeroes();
     return heroesFromDB;
   }
 
@@ -28,7 +26,7 @@ export class HeroService {
    * @returns {Promise<Hero | null>} A promise that resolves to a Hero object if found, or null if not found.
    */
   public async getHeroById(id: number): Promise<Hero | null> {
-    const hero: Hero | null = await this.database.getHeroById(id);
+    const hero: Hero | null = await this.heroDatabase.getHeroById(id);
     return hero;
   }
 
@@ -38,7 +36,7 @@ export class HeroService {
    * @returns {Promise<Hero[]>} A promise that resolves to an array of Hero objects with the specified name.
    */
   public async getHeroesByName(name: string): Promise<Hero[]> {
-    const heroes: Hero[] = await this.database.getHeroesByName(name);
+    const heroes: Hero[] = await this.heroDatabase.getHeroesByName(name);
     return heroes;
   }
 
@@ -50,7 +48,7 @@ export class HeroService {
    */
   public async updateHeroNameById(id: number, newName: string): Promise<void> {
     const hero: Hero = new Hero(id, newName);
-    this.database.setHeroNameById(hero);
+    this.heroDatabase.setHeroNameById(hero);
   }
 
   /**
@@ -59,7 +57,7 @@ export class HeroService {
    * @returns {Promise<number | undefined>} A promise that resolves to the ID of the newly created hero, or undefined if the creation fails.
    */
   public async createHero(name: string): Promise<number | undefined> {
-    const newHeroId: number | undefined = await this.database.createHero(name);
+    const newHeroId: number | undefined = await this.heroDatabase.createHero(name);
     return newHeroId;
   }
 
@@ -69,6 +67,6 @@ export class HeroService {
    * @returns {Promise<void>} A promise that resolves when the deletion is complete.
    */
   public async deleteHero(id: number): Promise<void> {
-    await this.database.deleteHero(id);
+    await this.heroDatabase.deleteHero(id);
   }
 }
