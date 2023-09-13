@@ -9,7 +9,7 @@ export class Hero {
    * @throws {Error} If the ID is negative or if the name is empty.
    */
   constructor(public id: number, public name: string) {
-    if (id < 0) {
+    if (id <= 0) {
       throw new Error("Invalid 'id' value. The value must not be negative.");
     }
 
