@@ -18,7 +18,7 @@ export class HeroRoutes {
     this.router.get('/all', this.getAllHeroes);
     this.router.get('/:id', this.getHeroById);
     this.router.get('/names/:name', this.getHeroesByName);
-    this.router.put('/:id', this.updateHeroNameById);
+    this.router.put('/:id', this.setHeroNameById);
     this.router.post('/', this.createHero);
     this.router.delete('/:id', this.deleteHero);
   }
@@ -47,8 +47,8 @@ export class HeroRoutes {
   /**
    * Update a hero's name by ID.
    */
-  private updateHeroNameById = async (req: Request, res: Response): Promise<void> => {
-    this.heroController.updateHeroNameById(req, res);
+  private setHeroNameById = async (req: Request, res: Response): Promise<void> => {
+    this.heroController.setHeroNameById(req, res);
   };
 
   /**
