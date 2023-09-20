@@ -35,30 +35,28 @@ export class HeroService {
 
   /**
    * Retrieves heroes by their name (partial match) from the database.
-   *
-   * @param {string} name - The name (or part of the name) of the heroes to retrieve.
-   * @returns {Promise<Hero[] | 'no_data' | 'server_error'>} A promise that resolves to an array of Hero objects if found,
-   * or an error code if not found or an error occurs.
    */
-  public async getHeroesByName(name: string): Promise<Hero[] | 'no_data' | 'server_error'> {
-    return await this.heroDatabase.getHeroesByName(name);
+  public async searchHeroesByName(name: string): Promise<Hero[] | 'no_data' | 'server_error'> {
+    return await this.heroDatabase.searchHeroesByName(name);
   }
 
   /**
    * Updates the name of a hero in the database by their ID.
    *
    * @param {number} id - The ID of the hero to update.
-   * @param {string} newName - The new name for the hero.
-   * @returns {Promise<boolean | 'validation_error'>} A promise that resolves to true if the update is successful,
-   * 'validation_error' if the hero is not found, or false if an error occurs.
+   * @param {string} name - The new name for the hero.
+   * @returns {Promise<boolean | string[]>} A promise that resolves to true if the update is successful,
+   * or array of validation error messages if the hero data is invalid.
    */
-  public async setHeroNameById(id: number, newName: string): Promise<boolean | 'validation_error'> {
-    const hero = new Hero(id, newName);
-    if (hero === undefined) {
-      return 'validation_error';
+  public async updateHeroNameById(id: number, name: string): Promise<boolean | string[]> {
+    const hero = Hero.createWithIdAndName(id, name);
+    const heroValidation: string[] | null = hero.validate();
+
+    if (!heroValidation) {
+      return await this.heroDatabase.updateHeroNameById(id, name);
+    } else {
+      return heroValidation;
     }
-    const updateSucces = await this.heroDatabase.setHeroNameById(hero);
-    return updateSucces;
   }
 
   /**
@@ -68,12 +66,15 @@ export class HeroService {
    * @returns {Promise<boolean | 'validation_error'>} A promise that resolves to true if the hero is created successfully,
    * 'validation_error' if the name is too short, or false if an error occurs.
    */
-  public async createHero(name: string): Promise<boolean | 'validation_error'> {
-    if (name.length <= 1) {
-      return 'validation_error';
+  public async createHero(name: string): Promise<boolean | string[]> {
+    const hero = Hero.createWithName(name);
+    const heroValidation: string[] | null = hero.validate();
+
+    if (!heroValidation) {
+      return await this.heroDatabase.createHero(name);
+    } else {
+      return heroValidation;
     }
-    const creationSucces = await this.heroDatabase.createHero(name);
-    return creationSucces;
   }
 
   /**
@@ -83,11 +84,7 @@ export class HeroService {
    * @returns {Promise<boolean | 'validation_error'>} A promise that resolves to true if the hero is deleted successfully,
    * 'validation_error' if the ID is invalid, or false if an error occurs.
    */
-  public async deleteHero(id: number): Promise<boolean | 'validation_error'> {
-    if (id <= 0) {
-      return 'validation_error';
-    }
-    const deletionSucces = await this.heroDatabase.deleteHero(id);
-    return deletionSucces;
+  public async deleteHero(id: number): Promise<boolean> {
+    return await this.heroDatabase.deleteHero(id);
   }
 }

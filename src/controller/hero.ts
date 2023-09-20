@@ -20,10 +20,9 @@ export class HeroController {
    * @returns {Promise<void>} A promise that handles the response based on the result of the operation.
    */
   public async getHeroes(req: express.Request, res: express.Response): Promise<void> {
-    const heroesDataOrError: Hero[] | 'no_data' | 'server_error' =
-      await this.heroService.getHeroes();
+    const heroes: Hero[] | 'no_data' | 'server_error' = await this.heroService.getHeroes();
 
-    switch (heroesDataOrError) {
+    switch (heroes) {
       case 'no_data':
         res.status(404).json({ error: 'No heroes found' });
         break;
@@ -31,7 +30,7 @@ export class HeroController {
         res.status(500).json({ error: 'A server error occurred' });
         break;
       default:
-        res.status(200).json(heroesDataOrError);
+        res.status(200).json(heroes);
     }
   }
 
@@ -43,13 +42,10 @@ export class HeroController {
    * @returns {Promise<void>} A promise that handles the response based on the result of the operation.
    */
   public async getHeroById(req: express.Request, res: express.Response): Promise<void> {
-    const heroId = parseInt(req.params.id, 10);
-    if (isNaN(heroId)) {
-      res.status(400).json({ error: 'Invalid hero ID' });
-      return;
-    }
-    const heroDataOrError = await this.heroService.getHeroById(heroId);
-    switch (heroDataOrError) {
+    const id = parseInt(req.params.id, 10);
+
+    const hero = await this.heroService.getHeroById(id);
+    switch (hero) {
       case 'server_error':
         res.status(500).json({ error: 'A server error occurred' });
         break;
@@ -57,7 +53,7 @@ export class HeroController {
         res.status(404).json({ error: 'No hero found' });
         break;
       default:
-        res.status(200).json(heroDataOrError);
+        res.status(200).json(hero);
     }
   }
 
@@ -70,16 +66,13 @@ export class HeroController {
    * @param {express.Response} res - The response object.
    * @returns {Promise<void>} A promise that handles the response based on the result of the operation.
    */
-  public async getHeroesByName(req: express.Request, res: express.Response): Promise<void> {
-    const heroName: string | undefined = req.params.name;
-    if (!heroName) {
-      res.status(400).json({ error: 'Invalid hero name' });
-      return;
-    }
+  public async searchHeroesByName(req: express.Request, res: express.Response): Promise<void> {
+    const name: string | undefined = req.params.name;
 
-    const heroDataOrError: Hero[] | 'no_data' | 'server_error' =
-      await this.heroService.getHeroesByName(heroName);
-    switch (heroDataOrError) {
+    const heroes: Hero[] | 'no_data' | 'server_error' = await this.heroService.searchHeroesByName(
+      name
+    );
+    switch (heroes) {
       case 'no_data':
         res.status(404).json({ error: 'No heroes found' });
         break;
@@ -87,7 +80,7 @@ export class HeroController {
         res.status(500).json({ error: 'A server error occurred' });
         break;
       default:
-        res.status(200).json(heroDataOrError);
+        res.status(200).json(heroes);
     }
   }
 
@@ -98,27 +91,23 @@ export class HeroController {
    * @param {express.Response} res - The response object.
    * @returns {Promise<void>} A promise that handles the response based on the result of the operation.
    */
-  public async setHeroNameById(req: express.Request, res: express.Response): Promise<void> {
-    const heroId = parseInt(req.params.id, 10);
+  public async updateHeroNameById(req: express.Request, res: express.Response): Promise<void> {
+    const id = parseInt(req.params.id, 10);
     const name = req.body.name;
-    if (isNaN(heroId) || !name) {
-      res.status(400).json({ error: 'Invalid hero data' });
-      return;
-    }
 
-    const heroUpdateResult: boolean | 'validation_error' = await this.heroService.setHeroNameById(
-      heroId,
+    const heroUpdateResult: boolean | string[] = await this.heroService.updateHeroNameById(
+      id,
       name
     );
-    switch (heroUpdateResult) {
-      case 'validation_error':
-        res.status(400).json({ error: 'Invalid hero data' });
-        break;
-      case false:
-        res.status(500).json({ error: 'A server error occurred' });
-        break;
-      default:
+
+    if (typeof heroUpdateResult === 'boolean') {
+      if (heroUpdateResult) {
         res.status(200).json({ message: 'Hero updated' });
+      } else {
+        res.status(500).json({ error: 'A server error occurred' });
+      }
+    } else {
+      res.status(400).json({ error: heroUpdateResult });
     }
   }
 
@@ -131,23 +120,16 @@ export class HeroController {
    */
   public async createHero(req: express.Request, res: express.Response): Promise<void> {
     const name = req.body.name;
-    if (!name) {
-      res.status(400).json({ error: 'Invalid hero data' });
-      return;
-    }
 
-    const heroCreationResult: boolean | 'validation_error' = await this.heroService.createHero(
-      name
-    );
-    switch (heroCreationResult) {
-      case 'validation_error':
-        res.status(400).json({ error: 'Invalid hero data' });
-        break;
-      case false:
-        res.status(500).json({ error: 'A server error occurred' });
-        break;
-      default:
+    const heroCreationResult: boolean | string[] = await this.heroService.createHero(name);
+    if (typeof heroCreationResult === 'boolean') {
+      if (heroCreationResult) {
         res.status(201).json({ message: 'Hero created' });
+      } else {
+        res.status(500).json({ error: 'A server error occurred' });
+      }
+    } else {
+      res.status(400).json({ error: heroCreationResult });
     }
   }
 
@@ -159,24 +141,13 @@ export class HeroController {
    * @returns {Promise<void>} A promise that handles the response based on the result of the operation.
    */
   public async deleteHero(req: express.Request, res: express.Response): Promise<void> {
-    const heroId = parseInt(req.params.id, 10);
-    if (isNaN(heroId)) {
-      res.status(400).json({ error: 'Invalid hero ID' });
-      return;
-    }
+    const id = parseInt(req.params.id, 10);
 
-    const heroDeletionResult: boolean | 'validation_error' = await this.heroService.deleteHero(
-      heroId
-    );
-    switch (heroDeletionResult) {
-      case 'validation_error':
-        res.status(400).json({ error: 'Invalid hero ID, the ID does not exist' });
-        break;
-      case false:
-        res.status(500).json({ error: 'A server error occurred' });
-        break;
-      default:
-        res.status(200).json({ message: 'Hero deleted' });
+    const heroDeletionResult: boolean = await this.heroService.deleteHero(id);
+    if (heroDeletionResult) {
+      res.status(200).json({ message: 'Hero deleted' });
+    } else {
+      res.status(500).json({ error: 'A server error occurred' });
     }
   }
 }

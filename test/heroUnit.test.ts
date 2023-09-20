@@ -1,35 +1,29 @@
 import { expect } from 'chai';
 import { Hero } from '../src/model/hero-business';
+import { createTestableHeroWithInvalidName } from './test-helpers/testable-hero';
 
 /**
  * Unit tests for Hero class and its validation.
  */
 describe('Unit tests: Hero Validation', () => {
-  /**
-   * Test case: should throw an error if the ID is negative.
-   */
-  it('should throw an error if the ID is negative', () => {
-    expect(() => new Hero(-1, 'John Doe')).to.throw(
-      "Invalid 'id' value. The value must not be negative."
-    );
+  it('should return true if a new hero has no validation errors', () => {
+    const hero = Hero.createWithIdAndName(1, 'John Doe');
+    const actual = hero.validate();
+    const expected = null;
+    expect(actual).to.deep.equal(expected);
   });
 
-  /**
-   * Test case: should throw an error if the name is empty.
-   */
-  it('should throw an error if the name is empty', () => {
-    expect(() => new Hero(1, '')).to.throw(
-      "Invalid 'name' value. The value must have a length of 1 or more."
-    );
+  it('should return an error if the name property does not have type string', () => {
+    const hero = createTestableHeroWithInvalidName(1, 1);
+    const validationError = hero.validate();
+    const expected = "Invalid 'name' value. The value must be of type string.";
+    expect(validationError).to.include(expected);
   });
 
-  /**
-   * Test case: should create a Hero instance with a valid ID and name.
-   */
-  it('should create a Hero instance with a valid ID and name', () => {
-    const hero = new Hero(1, 'John Doe');
-    expect(hero).to.be.an.instanceOf(Hero);
-    expect(hero.id).to.equal(1);
-    expect(hero.name).to.equal('John Doe');
+  it('should return an error if the name property is empty', () => {
+    const hero = Hero.createWithIdAndName(1, '');
+    const actual = hero.validate();
+    const expected = "Invalid 'name' value. The value can not be empty.";
+    expect(actual).to.include(expected);
   });
 });

@@ -15,11 +15,11 @@ export class HeroSequelizeDatabase implements HeroDatabase {
    */
   public async getHeroes(): Promise<Hero[] | 'no_data' | 'server_error'> {
     try {
-      const heroes: Hero[] = await HeroModel.findAll();
+      const heroes = await HeroModel.findAll();
       if (heroes.length === 0) {
         return 'no_data';
       }
-      return heroes.map(hero => new Hero(hero.id, hero.name));
+      return heroes.map(hero => Hero.createWithIdAndName(hero.id, hero.name));
     } catch (error) {
       return 'server_error';
     }
@@ -34,11 +34,11 @@ export class HeroSequelizeDatabase implements HeroDatabase {
    */
   public async getHeroById(id: number): Promise<Hero | 'no_data' | 'server_error'> {
     try {
-      const hero: Hero | null = await HeroModel.findByPk(id);
-      if (hero === null) {
+      const hero = await HeroModel.findByPk(id);
+      if (!hero) {
         return 'no_data';
       }
-      return hero;
+      return Hero.createWithIdAndName(hero.id, hero.name);
     } catch (error) {
       return 'server_error';
     }
@@ -51,9 +51,9 @@ export class HeroSequelizeDatabase implements HeroDatabase {
    * @returns {Promise<Hero[] | 'no_data' | 'server_error'>} A promise that resolves to an array of Hero objects if found,
    * or an error code if not found or an error occurs.
    */
-  public async getHeroesByName(name: string): Promise<Hero[] | 'no_data' | 'server_error'> {
+  public async searchHeroesByName(name: string): Promise<Hero[] | 'no_data' | 'server_error'> {
     try {
-      const heroes: Hero[] = await HeroModel.findAll({
+      const heroes = await HeroModel.findAll({
         where: {
           name: {
             [Op.like]: `%${name}%`, // Use Sequelize's Op.like operator for partial name matching
@@ -63,7 +63,7 @@ export class HeroSequelizeDatabase implements HeroDatabase {
       if (heroes.length === 0) {
         return 'no_data';
       }
-      return heroes.map(hero => new Hero(hero.id, hero.name));
+      return heroes.map(hero => Hero.createWithIdAndName(hero.id, hero.name));
     } catch (error) {
       return 'server_error';
     }
@@ -72,24 +72,20 @@ export class HeroSequelizeDatabase implements HeroDatabase {
   /**
    * Updates the name of a hero in the database by their ID.
    *
-   * @param {Hero} hero - The Hero object containing the new name and ID.
-   * @returns {Promise<boolean | 'validation_error'>} A promise that resolves to true if the update is successful,
-   * 'validation_error' if the hero is not found, or false if an error occurs.
+   * @param {number} id - The ID of the hero to update.
+   * @param {string} name - The new name for the hero.
+   * @returns {Promise<boolean>} A promise that resolves to true if the update is successful, or false if an error occurs.
    */
-  public async setHeroNameById(hero: Hero): Promise<boolean | 'validation_error'> {
+  public async updateHeroNameById(id: number, name: string): Promise<boolean> {
     try {
-      const [affectedRows] = await HeroModel.update(
-        { name: hero.name },
+      await HeroModel.update(
+        { name: name },
         {
           where: {
-            id: hero.id,
+            id: id,
           },
         }
       );
-
-      if (affectedRows === 0) {
-        return 'validation_error';
-      }
       return true;
     } catch (error) {
       return false;
@@ -105,8 +101,8 @@ export class HeroSequelizeDatabase implements HeroDatabase {
    */
   public async createHero(name: string): Promise<boolean> {
     try {
-      const newHero = HeroModel.build({ name } as HeroModel);
-      await newHero.save();
+      const hero = HeroModel.build({ name } as HeroModel);
+      await hero.save();
       return true;
     } catch (error) {
       return false;
@@ -117,19 +113,15 @@ export class HeroSequelizeDatabase implements HeroDatabase {
    * Deletes a hero from the database by their ID.
    *
    * @param {number} id - The ID of the hero to delete.
-   * @returns {Promise<boolean | 'validation_error'>} A promise that resolves to true if the hero is deleted successfully,
-   * 'validation_error' if the hero is not found, or false if an error occurs.
+   * @returns {Promise<boolean>} A promise that resolves to true if the hero is deleted successfully
    */
-  public async deleteHero(id: number): Promise<boolean | 'validation_error'> {
+  public async deleteHero(id: number): Promise<boolean> {
     try {
-      const affectedRows: number = await HeroModel.destroy({
+      await HeroModel.destroy({
         where: {
           id,
         },
       });
-      if (affectedRows === 0) {
-        return 'validation_error';
-      }
       return true;
     } catch (error) {
       return false;

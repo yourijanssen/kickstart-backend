@@ -11,7 +11,7 @@
     "format": "npx prettier \"src/**/*.{js,jsx,ts,tsx,html,css,scss}\" --write",
     "check": "npm run lint & npm run format",
     "setTestEnv": "set TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }'",
-    "test": "npx nyc mocha -r ts-node/register 'test/*.test.ts' --file test/mocha-setup.ts"
+    "test": "npx mocha -r ts-node/register 'test/*.test.ts' --file test/mocha-setup.ts"
   },
   "keywords": [],
   "author": "",
@@ -39,7 +39,6 @@
     "dotenv": "^16.3.1",
     "eslint": "^7.32.0",
     "mocha": "^9.2.2",
-    "nyc": "^15.1.0",
     "prettier": "^2.8.8",
     "regenerator-runtime": "^0.13.9",
     "sinon": "^12.0.1",
