@@ -121,13 +121,11 @@ export class HeroController {
   public async createHero(req: express.Request, res: express.Response): Promise<void> {
     const name = req.body.name;
 
-    const heroCreationResult: boolean | string[] = await this.heroService.createHero(name);
-    if (typeof heroCreationResult === 'boolean') {
-      if (heroCreationResult) {
-        res.status(201).json({ message: 'Hero created' });
-      } else {
-        res.status(500).json({ error: 'A server error occurred' });
-      }
+    const heroCreationResult: number | false | string[] = await this.heroService.createHero(name);
+    if (typeof heroCreationResult === 'number') {
+      res.status(201).json({ message: 'Hero created', id: heroCreationResult });
+    } else if (typeof heroCreationResult === 'boolean') {
+      res.status(500).json({ error: 'A server error occurred' });
     } else {
       res.status(400).json({ error: heroCreationResult });
     }

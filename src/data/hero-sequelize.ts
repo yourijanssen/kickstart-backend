@@ -1,12 +1,12 @@
 import { Op } from 'sequelize';
 import { Hero } from '../model/hero-business';
 import { HeroModel } from '../util/models';
-import { HeroDatabase } from './hero-interface';
+import { HeroDatabaseInterface } from './hero-interface';
 
 /**
  * A class that interacts with the database to perform CRUD operations on heroes using Sequelize.
  */
-export class HeroSequelizeDatabase implements HeroDatabase {
+export class HeroSequelizeDatabase implements HeroDatabaseInterface {
   /**
    * Retrieves all heroes from the database.
    *
@@ -99,11 +99,15 @@ export class HeroSequelizeDatabase implements HeroDatabase {
    * @returns {Promise<boolean>} A promise that resolves to true if the hero is created successfully,
    * or false if an error occurs.
    */
-  public async createHero(name: string): Promise<boolean> {
+  public async createHero(name: string): Promise<number | false> {
     try {
       const hero = HeroModel.build({ name } as HeroModel);
       await hero.save();
-      return true;
+      if (hero.id) {
+        return hero.id;
+      } else {
+        return false;
+      }
     } catch (error) {
       return false;
     }

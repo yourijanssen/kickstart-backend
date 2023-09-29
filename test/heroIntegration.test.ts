@@ -2,7 +2,7 @@ import sinon, { SinonStub } from 'sinon';
 import { HeroService } from '../src/service/hero';
 import { expect } from 'chai';
 import { Hero } from '../src/model/hero-business';
-import { createHeroServiceWithStubs } from './test-helpers/service-stubs';
+import { createHeroServiceWithStubs } from './test-helpers/IntegrationTestHelper';
 
 describe('Integration Tests: HeroService', () => {
   let heroService: HeroService;

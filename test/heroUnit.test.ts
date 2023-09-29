@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { Hero } from '../src/model/hero-business';
-import { createTestableHeroWithInvalidName } from './test-helpers/testable-hero';
+import { createTestableHeroWithInvalidName } from './test-helpers/UnitTestHelper';
 
 /**
  * Unit tests for Hero class and its validation.

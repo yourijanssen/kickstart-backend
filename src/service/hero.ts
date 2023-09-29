@@ -1,4 +1,4 @@
-import { HeroDatabase } from '../data/hero-interface';
+import { HeroDatabaseInterface } from '../data/hero-interface';
 import { Hero } from '../model/hero-business';
 
 /**
@@ -8,9 +8,9 @@ export class HeroService {
   /**
    * Creates an instance of the HeroService.
    *
-   * @param {HeroDatabase} heroDatabase - The database implementation to use.
+   * @param {HeroDatabase} heroDatabaseInterface - The database implementation to use.
    */
-  public constructor(private heroDatabase: HeroDatabase) {}
+  public constructor(private heroDatabaseInterface: HeroDatabaseInterface) {}
 
   /**
    * Retrieves all heroes from the database.
@@ -19,7 +19,7 @@ export class HeroService {
    * or an error code if unsuccessful.
    */
   public async getHeroes(): Promise<Hero[] | 'no_data' | 'server_error'> {
-    return await this.heroDatabase.getHeroes();
+    return await this.heroDatabaseInterface.getHeroes();
   }
 
   /**
@@ -30,14 +30,14 @@ export class HeroService {
    * or an error code if not found or an error occurs.
    */
   public async getHeroById(id: number): Promise<Hero | 'no_data' | 'server_error'> {
-    return await this.heroDatabase.getHeroById(id);
+    return await this.heroDatabaseInterface.getHeroById(id);
   }
 
   /**
    * Retrieves heroes by their name (partial match) from the database.
    */
   public async searchHeroesByName(name: string): Promise<Hero[] | 'no_data' | 'server_error'> {
-    return await this.heroDatabase.searchHeroesByName(name);
+    return await this.heroDatabaseInterface.searchHeroesByName(name);
   }
 
   /**
@@ -53,7 +53,7 @@ export class HeroService {
     const heroValidation: string[] | null = hero.validate();
 
     if (!heroValidation) {
-      return await this.heroDatabase.updateHeroNameById(id, name);
+      return await this.heroDatabaseInterface.updateHeroNameById(id, name);
     } else {
       return heroValidation;
     }
@@ -66,12 +66,12 @@ export class HeroService {
    * @returns {Promise<boolean | 'validation_error'>} A promise that resolves to true if the hero is created successfully,
    * 'validation_error' if the name is too short, or false if an error occurs.
    */
-  public async createHero(name: string): Promise<boolean | string[]> {
+  public async createHero(name: string): Promise<number | false | string[]> {
     const hero = Hero.createWithName(name);
     const heroValidation: string[] | null = hero.validate();
 
     if (!heroValidation) {
-      return await this.heroDatabase.createHero(name);
+      return await this.heroDatabaseInterface.createHero(name);
     } else {
       return heroValidation;
     }
@@ -85,6 +85,6 @@ export class HeroService {
    * 'validation_error' if the ID is invalid, or false if an error occurs.
    */
   public async deleteHero(id: number): Promise<boolean> {
-    return await this.heroDatabase.deleteHero(id);
+    return await this.heroDatabaseInterface.deleteHero(id);
   }
 }

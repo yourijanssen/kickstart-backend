@@ -1,5 +1,24 @@
+import { HeroDatabaseInterface } from '../../src/data/hero-interface';
+import * as tssinon from 'ts-sinon';
+import { Hero } from '../../src/model/hero-business';
+import { HeroSequelizeDatabase } from '../../src/data/hero-sequelize';
+
+export function initDatabaseStub(): tssinon.StubbedInstance<HeroDatabaseInterface> {
+  const heroDatabase: HeroDatabaseInterface = new HeroSequelizeDatabase();
+  const HeroDatabaseStub = tssinon.stubObject<HeroDatabaseInterface>(heroDatabase);
+
+  HeroDatabaseStub.getHeroes.returns(Promise.resolve([Hero.createWithIdAndName(1, 'test')]));
+  HeroDatabaseStub.getHeroById.returns(Promise.resolve(Hero.createWithIdAndName(1, 'test')));
+  HeroDatabaseStub.searchHeroesByName.returns(
+    Promise.resolve([Hero.createWithIdAndName(1, 'test')])
+  );
+  HeroDatabaseStub.updateHeroNameById.returns(Promise.resolve(true));
+  HeroDatabaseStub.createHero.returns(Promise.resolve(1));
+  HeroDatabaseStub.deleteHero.returns(Promise.resolve(true));
+  return HeroDatabaseStub;
+}
+
 import sinon, { SinonStub } from 'sinon';
-import { HeroDatabase } from '../../src/data/hero-interface';
 import { HeroService } from '../../src/service/hero';
 
 export function createHeroServiceWithStubs(): {
@@ -11,7 +30,7 @@ export function createHeroServiceWithStubs(): {
   createHeroStub: SinonStub;
   deleteHeroStub: SinonStub;
 } {
-  const heroDatabaseStub: HeroDatabase = {
+  const heroDatabaseStub: HeroDatabaseInterface = {
     getHeroes: sinon.stub(),
     getHeroById: sinon.stub(),
     searchHeroesByName: sinon.stub(),

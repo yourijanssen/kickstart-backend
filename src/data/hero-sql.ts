@@ -1,12 +1,12 @@
 import { Pool, ResultSetHeader, RowDataPacket } from 'mysql2';
 import { Hero } from '../model/hero-business';
-import { HeroDatabase } from './hero-interface';
+import { HeroDatabaseInterface } from './hero-interface';
 import { DatabaseConfig } from '../util/database-config';
 
 /**
  * A class that interacts with the database to perform CRUD operations on heroes using SQL.
  */
-export class HeroMysqlDatabase implements HeroDatabase {
+export class HeroMysqlDatabase implements HeroDatabaseInterface {
   /**
    * Retrieves all heroes from the database.
    *
@@ -115,21 +115,28 @@ export class HeroMysqlDatabase implements HeroDatabase {
    * @param {string} name - The name of the hero to create.
    * @returns {Promise<boolean>} A promise that resolves to true if the hero is created successfully, or false if an error occurs.
    */
-  public async createHero(name: string): Promise<boolean> {
+  public async createHero(name: string): Promise<number | false> {
     const pool: Pool | null = DatabaseConfig.pool;
 
     try {
       if (pool != null) {
-        await pool
+        const [result] = await pool
           .promise()
           .execute<ResultSetHeader>(
             'INSERT INTO `hero` (`name`, `createdAt`, `updatedAt`) VALUES (?, NOW(), NOW())',
             [name]
           );
+
+        if (result && result.insertId) {
+          return result.insertId;
+        } else {
+          return false; // Return false if insertId is missing or 0
+        }
+      } else {
+        return false; // Return false if the pool is null
       }
-      return true;
     } catch (error) {
-      return false;
+      return false; // Return false if there's an error
     }
   }
 
