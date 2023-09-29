@@ -9,3 +9,4 @@ lint:
   script:
     - npm install
     - npm run check
+    - npm test
